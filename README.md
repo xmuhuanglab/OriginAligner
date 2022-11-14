@@ -1,3 +1,3 @@
 # OriginAligner
 
-![Image text](D:\onedrive\桌面\crihosis integrate\paper_Figure)
+![Image text](https://github.com/xmuhuanglab/OriginAligner/blob/main/images/OriginAligner.png)
