@@ -55,7 +55,7 @@ library(circlize)
 #  row.col : the order of circle plot 
 #  grid.col : each circle linecolor of each subtype
 
-load('example_dataset.RData')
+load('Example data/example_dataset.RData')
 seurat_obj=sub
 subtype="Hepatocyte"
 sample_1='HCC'
@@ -75,7 +75,7 @@ weight_threshold=0.003  ##  you could judge based on the results of Plot_hvg
 
 #### Run the code
 ```
-# source R/R_function
+source('R/R_function')
 Screen_hvg(seurat_obj,subtype,gene_number)
 Plot_hvg(disp_threshold,weight_threshold)
 OriginAligner(seurat_obj,subtype,sample_1,sample_2,sample_3,type_origin,grid.col,row.col)
