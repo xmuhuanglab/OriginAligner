@@ -1,6 +1,6 @@
 # SIM-scRNA
+![Image text]()
 ## OriginAligner: a method to phenotypic comparison of different sample sources
-
 ### Introduction:
 Here we designed a modified statistical method OriginAligner based on the hypothesis that cells resemble transcriptome characteristics in different samples might 
 have similar microenvironments or niches.
