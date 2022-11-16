@@ -17,6 +17,10 @@ Integrated analysis of single-cell transcriptome of liver cancer and cirrhosis r
 #### Step 4 ： calculate the overlap of marker and calculate the Jaccard similarity to validate above found  （function--Venn_Jaccard）
 #### load R package
 
+### Pull the docker (the env about R version)
+```
+docker pull sluo112211/sim-docker
+```
 ```
 library(ggpointdensity)
 library(cowplot)
