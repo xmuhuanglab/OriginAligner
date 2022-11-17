@@ -81,8 +81,16 @@ weight_threshold=0.003  ##  you could judge based on the results of Plot_hvg
 #### Run the code
 ```
 source('R/R_function')
+```
+```
 Screen_hvg(seurat_obj,subtype,gene_number)
+```
+```
 Plot_hvg(disp_threshold,weight_threshold)
+```
+```
 OriginAligner(seurat_obj,subtype,sample_1,sample_2,sample_3,type_origin,grid.col,row.col)
+```
+```
 Venn_Jaccard(seurat_obj,subtype,sample_1,sample_2,type_originII,k,type_originII_1,type_originII_2)
 ```
