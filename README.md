@@ -88,13 +88,13 @@ Screen_hvg(seurat_obj,subtype,gene_number)
 ```
 Plot_hvg(disp_threshold,weight_threshold)
 ```
-![Image text]()
+![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/hvg.PNG)
 ```
 OriginAligner(seurat_obj,subtype,sample_1,sample_2,sample_3,type_origin,grid.col,row.col)
 ```
-![Image text]()
+![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/example_originaligner_1.jpg)
 ```
 Venn_Jaccard(seurat_obj,subtype,sample_1,sample_2,type_originII,k,type_originII_1,type_originII_2)
 ```
-![Image text]()
-![Image text]()
+![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/marker_overlap.PNG)
+![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/jaccard_smilarity_%20HCC_PGA5%2B%20Hepa%20Cirrhosis_Hepa%20KNG1%20.pdf)
