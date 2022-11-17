@@ -13,8 +13,8 @@ Integrated analysis of single-cell transcriptome of liver cancer and cirrhosis r
 ### Step
 #### Step 1 ： calculate the hvg based on dispersion and weight（function--Screen_hvg）
 #### Step 2 ： select the hvg by yourself （function--Plot_hvg） 
-#### Step 3 ： calculate KNN and visualize  （function--OriginAligner）， you had better choice the best result to visualize
-#### Step 4 ： calculate the overlap of marker and calculate the Jaccard similarity to validate above found  （function--Venn_Jaccard）
+#### Step 3 ： calculate KNN and visualize  (function--OriginAligner), you had better choice the best result to visualize
+#### Step 4 ： calculate the overlap of markers and the Jaccard similarity（function--Venn_Jaccard）
 #### load R package
 
 ### Pull the docker (the env about R version)
@@ -88,9 +88,13 @@ Screen_hvg(seurat_obj,subtype,gene_number)
 ```
 Plot_hvg(disp_threshold,weight_threshold)
 ```
+![Image text]()
 ```
 OriginAligner(seurat_obj,subtype,sample_1,sample_2,sample_3,type_origin,grid.col,row.col)
 ```
+![Image text]()
 ```
 Venn_Jaccard(seurat_obj,subtype,sample_1,sample_2,type_originII,k,type_originII_1,type_originII_2)
 ```
+![Image text]()
+![Image text]()
