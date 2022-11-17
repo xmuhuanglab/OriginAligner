@@ -97,4 +97,5 @@ OriginAligner(seurat_obj,subtype,sample_1,sample_2,sample_3,type_origin,grid.col
 Venn_Jaccard(seurat_obj,subtype,sample_1,sample_2,type_originII,k,type_originII_1,type_originII_2)
 ```
 ![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/marker_overlap.PNG)
-![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/jaccard_smilarity_%20HCC_PGA5%2B%20Hepa%20Cirrhosis_Hepa%20KNG1%20.pdf)
+![Image text](https://user-images.githubusercontent.com/95668602/202403630-375e1702-9f11-41c3-b7fe-cca9fb2654b8.png)
+
