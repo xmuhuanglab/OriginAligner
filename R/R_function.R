@@ -1,3 +1,29 @@
+library(ggpointdensity)
+library(cowplot)
+library(viridis)
+library(Seurat)
+library(dplyr)
+library(tibble)
+library(reshape2)
+library(patchwork)
+library(stringr)
+library(openxlsx)
+library(ggplot2)
+library(tidyverse)
+library(data.table)
+library(Hmisc)
+library(tidyr)
+library(class)    
+library(RColorBrewer)
+library(ggvenn)
+library(rgl)
+library(ggforce)
+library(reshape2)
+library(reshape)
+library(gplots)
+library(circlize)
+
+
 # Introduce the step
 ##Step 1 ： calculate the hvg based on dispersion and weight（function--Screen_hvg）
 ##Step 2 ： select the hvg by yourself （function--Plot_hvg） 
@@ -129,11 +155,11 @@ OriginAligner = function(seurat_obj,subtype,sample_1,sample_2,sample_3,type_orig
   kk=sub@meta.data
   matrix=as.matrix(sub@assays$RNA@data[gene,])  #  ncol(mat)
   metadata=sub@meta.data
-  #### 设置 test 组别
+  #### test
   tt=rownames(kk)[which(kk$data_type==sample_1)]
   test=t(matrix[gene,intersect(tt,colnames(matrix))])
   test_lab=as.factor(metadata[intersect(tt,colnames(matrix)),type_origin])
-  #### 设置 train 组别
+  #### train
   cc=rownames(kk)[which(kk$data_type==sample_2|kk$data_type==sample_3)]
   train=t(matrix[gene,intersect(cc,colnames(matrix))])
   train_lab =as.factor(metadata[intersect(cc,colnames(matrix)),type_origin])
