@@ -58,10 +58,10 @@ source('identify the cirrhosis-like subpopulations/OriginAligner_main')
 Screen_hvg(seurat_obj,subtype,gene_number)
 Plot_hvg(disp_threshold,weight_threshold)
 ```
-![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/GSE149614_hvg_screen.png)
+![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/example_hvg_screen.png)
 ```
 OriginAligner(seurat_obj,subtype,sample_1,sample_2,sample_3,type_origin,bg.col,type_origin_1,type_origin_2,best_k)
 ```
-![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/GSE149614_SIM_sample.png)
+![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/SIM_example.png)
 
 
