@@ -1,1 +1,92 @@
+import os
+import pandas as pd
+import numpy as np
+from scipy.io import mmread
+import scipy.sparse as sp
+import matplotlib.pyplot as plt
+from IPython.display import Image
+import scanpy as sc
+from cnmf import cNMF
 
+merge2=sc.read("./origin_aligner/merge2.h5ad")
+tmp = merge2[merge2.obs.celltype.isin(['Hepatocyte'])]
+set(tmp.obs.data_type)
+adata=tmp[tmp.obs.data_type.isin({'Cirrhosis','HCC'})]
+
+## filter
+sc.pp.filter_cells(adata, min_genes=200) 
+sc.pp.filter_cells(adata, min_counts=200) 
+sc.pp.filter_genes(adata, min_cells=3)
+count_adat_fn = 'counts.h5ad'
+sc.write(count_adat_fn, adata)
+numiter=200 
+numhvgenes=2000 
+
+output_directory = 'Hepatocyte_cNMF2/cNMF'
+if not os.path.exists(output_directory):
+    os.mkdir(output_directory)
+run_name = 'hepa_cNMF'
+K = ' '.join([str(i) for i in range(10,50)])
+seed = 50
+countfn = './cnmf/counts.h5ad'
+cnmf_obj = cNMF(output_dir=output_directory, name=run_name)
+
+cnmf_obj.prepare(counts_fn=countfn, components=np.arange(10,50), seed=50,
+num_highvar_genes=2000)
+cnmf_obj.factorize(worker_i=0, total_workers=1)
+cnmf_obj.combine()
+cnmf_obj.k_selection_plot(close_fig=False)
+print('This saves the corresponding figure to the following file: %s' %cnmf_obj.paths['k_selection_plot'])
+
+selected_K = 16
+density_threshold =0.1
+cnmf_obj.consensus(k=selected_K, density_threshold=density_threshold,show_clustering=True, close_clustergram_fig=False)
+
+adata = sc.read(countfn)
+hvgs =open('./Hepatocyte_cNMF2/cNMF/hepa_cNMF/hepa_cNMF.overdispersed_genes.txt').read().split('\n') 
+sc.pp.normalize_per_cell(adata, counts_per_cell_after=10**4) ## TPT normalization
+adata.raw = sc.pp.log1p(adata.copy(), copy=True)
+adata = adata[:,hvgs]
+sc.pp.scale(adata)
+sc.pp.pca(adata)
+sc.pl.pca_variance_ratio(adata, log=True)
+sc.pp.neighbors(adata, n_neighbors=50, n_pcs=15)
+import umap.umap_ as umap 
+sc.tl.umap(adata)
+sc.tl.tsne(adata)
+
+usage_file ='Hepatocyte_cNMF2/cNMF/hepa_cNMF/hepa_cNMF.usages.k_16.dt_2_0.consensus.txt'
+usage = pd.read_csv(usage_file, sep='\t', index_col=0)
+usage.columns = ['Usage_%s' % i for i in usage.columns]
+usage.head()
+usage_norm = usage.div(usage.sum(axis=1), axis=0)
+usage_norm.head()
+adata.obs = pd.merge(left=adata.obs, right=usage_norm, how='left', left_index=True,right_index=True)
+
+sc.pl.tsne(adata, color=usage_norm.columns,use_raw=True, ncols=3, vmin=0,vmax=1,s=50, frameon=False)
+
+merge2=sc.read("/cluster/huanglab/sluo/sluoo/Cirrhosis_Integrate/origin_aligner/merge2.h5ad")
+tmp = merge2[merge2.obs.celltype.isin(['Hepatocyte'])]
+set(tmp.obs.data_type)
+hepa=tmp[tmp.obs.data_type.isin({'Cirrhosis','HCC'})]
+hepa.obs.head()
+set(hepa.obs.data_type)
+hepa.obs.loc[:,['data_type','type_originII']].to_csv('Hepatocyte_metadata.csv',header=True)
+hepameta=pd.read_csv('./Hepatocyte_metadata.csv',index_col=0)
+adata.obs = pd.merge(left=adata.obs, right=hepameta, how='left', left_index=True,right_index=True)
+
+selected_K = 16
+gene_scores_file = cnmf_obj.paths['gene_spectra_score__txt'] % (selected_K, '2_0')
+print(gene_scores_file)
+gene_scores = pd.read_csv(gene_scores_file, sep='\t', index_col=0).T
+gene_scores.head()
+top_genes = []
+ngenes = 100 
+for gep in gene_scores.columns:
+    top_genes.append(list(gene_scores.sort_values(by=gep,ascending=False).index[:ngenes]))
+top_genes = pd.DataFrame(top_genes, index=gene_scores.columns).T
+top_genes
+top_genes.loc[:,[1]]
+top_genes.to_csv('Hepatocyte_C_T_top_100_genes_k16.csv')
+cnmf_obj.consensus(k=16, density_threshold=0.1, show_clustering=True,close_clustergram_fig=False)
+adata.obs.to_csv('cNMF_metadata_k16.csv')
