@@ -1,0 +1,35 @@
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score
+import sklearn.datasets as ds
+import matplotlib.pyplot as plt
+import numpy as np
+import scanpy as sc
+import pandas as pd
+
+train=pd.read_csv('GSE149614_train_sample.csv')
+train_lab=pd.read_csv('GSE149614_train_lab_sample.csv')
+
+feature = train.iloc[0::,1::]
+target = train_lab['x']
+x_train, x_test, y_train, y_test = train_test_split(feature, target, test_size=0.2,random_state=2020)
+
+scores = []
+ks = []
+
+for k in range(3,50):
+   knn = KNeighborsClassifier(n_neighbors=k)
+   cross_score = cross_val_score(knn,x_train,y_train,cv=10).mean()
+   scores.append(cross_score)
+   ks.append(k)
+   ks_arr = np.array(ks)
+   
+scores_arr = np.array(scores)
+plt.plot(ks_arr, scores_arr)
+plt.xlabel('k_value')
+plt.ylabel('score')
+plt.savefig('./GSE149614_k_selection_sample.pdf')
+plt.show()
+max_idx = scores_arr.argmax()
+max_k = ks[max_idx]
+print('best_k：',max_k)
