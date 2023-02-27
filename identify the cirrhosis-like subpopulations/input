@@ -6,9 +6,8 @@
 #  k : the number of marker you want to overlap
 #  type_origin_1 & type_origin_2: the subset you want to alignment, eg: 'HCC_PGA5+ Hepa' 
 #  gene_number : you should set the number of hvg you want based on diff dataset conditions
-#  disp_threshold、weight_threshold :  you should set the threshold based on diff dataset conditions, and could judge based on the results of Plot_hvg
-#  row.col : the order of circle plot 
-#  grid.col : each circle linecolor of each subtype
+#  disp_threshold, weight_threshold :  you should set the threshold based on diff dataset conditions, and could judge based on the results of Plot_hvg 
+#  bg.col : color of each subtype
 
 load('Example data/GSE149614_Hepa_cirr_sample.RData')
 seurat_obj=GSE149614_Hepa_cirr_sample
