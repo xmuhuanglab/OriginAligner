@@ -15,7 +15,7 @@ Integrated analysis of single-cell transcriptome of liver cancer and cirrhosis r
 #### Step 2 ： select the hvg by yourself （function--Plot_hvg） 
 #### Step 3 ： calculate KNN and visualize  (function--OriginAligner), you had better choice the best result to visualize
 #### Step 4 ： calculate the overlap of markers and the Jaccard similarity（function--Venn_Jaccard）
-#### load R package:Required R package can be found in identify the cirrhosis-like subpopulations/R_package_library
+#### load R package: Required R package can be found in identify the cirrhosis-like subpopulations/R_package_library
 
 ### Pull the docker (the env about R version)
 ```
