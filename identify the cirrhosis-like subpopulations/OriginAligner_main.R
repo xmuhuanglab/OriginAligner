@@ -119,7 +119,7 @@ Plot_hvg = function(disp_threshold,weight_threshold){
 
 ##      Step 3: OriginAligner 
 
-OriginAligner = function(seurat_obj,subtype,sample_1,sample_2,sample_3,type_origin,bg.col,type_origin_1,type_origin_2){
+OriginAligner = function(seurat_obj,subtype,sample_1,sample_2,sample_3,type_origin,bg.col,type_origin_1,type_origin_2,best_k){
   ####  gene
   gene_screen=read.csv(paste('gene_screen',subtype,'.csv',sep = '_'))
   gene=gene_screen$X
@@ -140,7 +140,7 @@ OriginAligner = function(seurat_obj,subtype,sample_1,sample_2,sample_3,type_orig
   
   # KNN calculation
   pre=knn(train, test,
-          cl=train_lab, k = round(sqrt(dim(train)[1])),
+          cl=train_lab, k = best_k,
           l = 0, prob =FALSE, use.all = TRUE)
   
   df = data.frame(factors = rep(c(rownames(input),type_origin_1),100001),x =rep(seq(0,1,0.00001),nrow(input)+1), y = runif(100001*(nrow(input)+1)))
