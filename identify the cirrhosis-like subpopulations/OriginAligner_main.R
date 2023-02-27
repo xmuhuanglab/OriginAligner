@@ -119,7 +119,7 @@ Plot_hvg = function(disp_threshold,weight_threshold){
 
 ##      Step 3: OriginAligner 
 
-OriginAligner = function(seurat_obj,subtype,sample_1,sample_2,sample_3,type_origin,grid.col,row.col){
+OriginAligner = function(seurat_obj,subtype,sample_1,sample_2,sample_3,type_origin,bg.col,type_origin_1,type_origin_2){
   ####  gene
   gene_screen=read.csv(paste('gene_screen',subtype,'.csv',sep = '_'))
   gene=gene_screen$X
@@ -143,18 +143,38 @@ OriginAligner = function(seurat_obj,subtype,sample_1,sample_2,sample_3,type_orig
           cl=train_lab, k = round(sqrt(dim(train)[1])),
           l = 0, prob =FALSE, use.all = TRUE)
   
+  df = data.frame(factors = rep(c(rownames(input),type_origin_1),100001),x =rep(seq(0,1,0.00001),nrow(input)+1), y = runif(100001*(nrow(input)+1)))
+  
   data=table(pre,test_lab)
   input=as.matrix(data)
-  pdf(paste("chordDiagram",subtype,'.pdf',sep = '_'))
-  fig2=chordDiagram(input,grid.col = grid.col, big.gap = 0,row.col = row.col,annotationTrackHeight = c(0.05, 0.16),
-                    annotationTrack =  c("name", "grid"),link.lty = 1,link.lwd = 4,transparency = 0.3)    
-  dev.off()
-  return(fig2)    
+  
+  par(mar = c(1, 1, 1, 1) )
+  circos.initialize(factors = df$factors, x = df$x)
+  circos.track(factors = df$factors,x = df$x, y = df$y,bg.col = bg.col,panel.fun = function(x,y){
+  circos.text(x = get.cell.meta.data("xcenter"),y = get.cell.meta.data("cell.ylim")[2] + uy(3,"mm"),labels = get.cell.meta.data("sector.index"))})
+  a=0
+  for (i in 1:nrow(input)){
+      ref_name=rownames(input)[i]
+      if (ref_name==type_origin_2){
+          head_num=a
+          end_num=round((input[i,type_origin_1]/sum(input[,type_origin_1])),6)+head_num
+          ref_num=round((input[i,type_origin_1]/sum(input[i,])),6)
+          circos.link(type_origin_1, c(head_num,end_num), ref_name,c(0,ref_num),col='#40a9ff',h = 0.8,border="black",lty = 1,lwd = 4)
+          a=end_num
+       }   
+      else {
+     head_num=a
+     end_num=round((input[i,type_origin_1]/sum(input[,type_origin_1])),6)+head_num
+     ref_num=round((input[i,type_origin_1]/sum(input[i,])),6)
+     # circos.link(type_origin_1, c(head_num,end_num), ref_name,c(0,ref_num),col='#FFF0F5',h = 0.8)
+     a=end_num
+     }
+  }
 }
 
 
 ##      Step 4:  Marker overlap (Venn plot) and Jaccard similarity
-Venn_Jaccard=function(seurat_obj,subtype,sample_1,sample_2,type_originII,k,type_originII_1,type_originII_2){
+Venn_Jaccard=function(seurat_obj,subtype,sample_1,sample_2,type_originII,k,type_origin_1,type_origin_2){
   kk=seurat_obj@meta.data[which(seurat_obj$celltype==subtype),]
   cells=rownames(kk)[which(kk$data_type==sample_1)]
   sub=subset(seurat_obj,cells=cells)
@@ -172,14 +192,14 @@ Venn_Jaccard=function(seurat_obj,subtype,sample_1,sample_2,type_originII,k,type_
   table(marker_1$cluster)
   marker_2 = marker_2 %>% group_by(cluster) %>% top_n(n = k, wt = avg_log2FC)
   x = list(
-    subset_1 = marker_1[which(marker_1$cluster==type_originII_1),]$gene,
-    subset_2 = marker_2[which(marker_2$cluster==type_originII_2),]$gene
+    subset_1 = marker_1[which(marker_1$cluster==type_origin_1),]$gene,
+    subset_2 = marker_2[which(marker_2$cluster==type_origin_2),]$gene
   )
   
   opar = par(family = "Roboto Condensed")
   mypal=c("#ff7875","#ffc069")
   pig=ggvenn(x,fill_color=mypal,fill_alpha = .6,stroke_linetype = "longdash",set_name_size = 7,text_size=9)
-  pdf(paste("Venn",type_originII_1,type_originII_2,'.pdf'))
+  pdf(paste("Venn",type_origin_1,type_origin_2,'.pdf'))
   pig
   dev.off()
   
