@@ -143,10 +143,11 @@ OriginAligner = function(seurat_obj,subtype,sample_1,sample_2,sample_3,type_orig
           cl=train_lab, k = best_k,
           l = 0, prob =FALSE, use.all = TRUE)
   
-  df = data.frame(factors = rep(c(rownames(input),type_origin_1),100001),x =rep(seq(0,1,0.00001),nrow(input)+1), y = runif(100001*(nrow(input)+1)))
-  
   data=table(pre,test_lab)
   input=as.matrix(data)
+  
+  df = data.frame(factors = rep(c(rownames(input),type_origin_1),100001),x =rep(seq(0,1,0.00001),nrow(input)+1), y = runif(100001*(nrow(input)+1)))
+
   
   par(mar = c(1, 1, 1, 1) )
   circos.initialize(factors = df$factors, x = df$x)
