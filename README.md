@@ -47,6 +47,7 @@ type_origin_2='Cirrhosis_Hepa KNG1'
 type_origin='type_originII'    ####  the colnames
 bg.col = c("#ffa940","#ffa940","#ffa940","#fa541c","#a0d911","#a0d911","#a0d911")
 gene_number=500
+best_k=5 ## by knn cross validation
 disp_threshold=1.3     ## you could judge based on the results of Plot_hvg
 weight_threshold=0.002  ##  you could judge based on the results of Plot_hvg
 ```
@@ -59,7 +60,7 @@ Plot_hvg(disp_threshold,weight_threshold)
 ```
 ![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/GSE149614_hvg_screen.png)
 ```
-OriginAligner(seurat_obj,subtype,sample_1,sample_2,sample_3,type_origin,bg.col,type_origin_1,type_origin_2)
+OriginAligner(seurat_obj,subtype,sample_1,sample_2,sample_3,type_origin,bg.col,type_origin_1,type_origin_2,best_k)
 ```
 ![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/GSE149614_SIM_sample.png)
 
