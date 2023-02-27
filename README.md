@@ -21,32 +21,7 @@ Integrated analysis of single-cell transcriptome of liver cancer and cirrhosis r
 ```
 docker pull sluo112211/sim-docker
 ```
-```
-library(ggpointdensity)
-library(cowplot)
-library(viridis)
-library(Seurat)
-library(dplyr)
-library(tibble)
-library(reshape2)
-library(patchwork)
-library(stringr)
-library(openxlsx)
-library(ggplot2)
-library(tidyverse)
-library(data.table)
-library(Hmisc)
-library(tidyr)
-library(class)    
-library(RColorBrewer)
-library(ggvenn)
-library(rgl)
-library(ggforce)
-library(reshape2)
-library(reshape)
-library(gplots)
-library(circlize)
-```
+
 ```
 #####  the requir of input
 ##  R version 4.1.0
