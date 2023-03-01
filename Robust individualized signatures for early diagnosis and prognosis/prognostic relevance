@@ -1,0 +1,105 @@
+import sys 
+%load_ext rpy2.ipython
+
+from IPython.core.display import display, HTML
+display(HTML("<style>.container { width:90% !important; }</style>"))
+%matplotlib inline
+import copy
+import numpy as np
+import pandas as pd
+import scanpy as sc
+import matplotlib.pyplot as plt
+import anndata as ad
+import scipy
+import seaborn as sns
+sc.set_figure_params(scanpy=True, dpi_save=200)
+
+def load_fractions(dem_path):
+    # load CIBERSORT output
+    dat = sc.read_csv(dem_path, first_column_names=True)
+    dat = dat[:,~dat.var_names.isin(['P-value', 'Correlation', 'RMSE', 'Absolute score (sig.score)'])]
+    dat.obs.index.rename('Sample', inplace=True)
+
+    # Absolute Scores
+    absolute_scores = dat.to_df()
+    absolute_scores.columns = absolute_scores.columns+'-Absolute'
+    dat.obs = dat.obs.merge(absolute_scores, how = 'left', left_index=True, right_index=True)
+    
+    # Relative Scores (tumor only)
+    relative_scores = dat.to_df()
+    # relative_scores = relative_scores.iloc[:,~relative_scores.columns.isin(['B', 'Plasma', 'T', 'CTL', 'NK', 'cDC', 'Monocyte', 'lateEry'])]
+    relative_scores = (relative_scores.transpose() / relative_scores.sum(axis=1).transpose()).transpose()
+    relative_scores.columns = relative_scores.columns+'-Relative'
+    dat.obs = dat.obs.merge(relative_scores, how = 'left', left_index=True, right_index=True)
+    
+    return dat
+
+###### you can infer the abundence according to different way
+hcc = load_fractions('./hcc_bulk_fraction_CIBERSORT.csv')
+hcc = load_fractions('./hcc_bulk_total_abundence_gsva.csv')
+hcc = load_fractions('./hcc_bulk_total_abundence_ssgsea.csv')
+hcc = load_fractions("./icca_bulk_total_abundence_ssgsea.csv")
+hcc = load_fractions('/cluster/huanglab/lgu/newdata/new_survival/hcc_bulk_total_abundence_ssgsea_new.csv')
+dem_path="./icca_bulk_total_abundence_ssgsea.csv"
+hcc.obs['APOH+ Endo-Absolute']
+hcc.obs['APOH+ Endo-Relative']
+dat=dat.to_df()
+set(dat.index)
+# pd.value_counts(tmp.obs.type_originII)
+# celltypes=set(dat.index)
+
+#####  HCC celltypes
+celltypes = ['APOH+ Endo','C1QC+ TAM','CD4 Central memory','CD4 Naive','CD4 Treg',
+ 'CD8 Effector','CD8 Effector memory','CD8 Exhausted','CLDN5+ Endo',
+ 'COX7A1+ Hepa','CYP2E1+ Hepa','FCN1+ TAM',
+ 'IGFBP3+ Hepa','IGFBP4+ Endo','PGA5+ Hepa','PTN+ Fibro','Proliferate T cell','RGS5+ Endo','SOD3+ Fibro','VCAN+ Mes']
+hcc.X = (hcc.X.transpose() / hcc.X.sum(axis=1)).transpose()
+sc.pp.pca(hcc,n_comps=10)
+sc.pp.neighbors(hcc, n_neighbors=10)
+sc.tl.leiden(hcc, resolution =0.1)
+sc.tl.umap(hcc) 
+hcc.varm
+sc.pl.pca(hcc, color=['leiden']+celltypes, color_map = 'RdBu_r', wspace = 0.3, ncols=4)
+
+#####  HCC celltypes
+celltypes = ['APOH+ Endo','C1QC+ TAM','CD4 Central memory','CD4 Naive','CD4 Treg',
+ 'CD8 Effector','CD8 Effector memory','CD8 Exhausted','CLDN5+ Endo',
+ 'COX7A1+ Hepa','CYP2E1+ Hepa','FCN1+ TAM',
+ 'IGFBP3+ Hepa','IGFBP4+ Endo','PGA5+ Hepa','PTN+ Fibro','Proliferate T cell','RGS5+ Endo','SOD3+ Fibro','VCAN+ Mes']
+
+####   PC1 LEFT 
+celltypes=['CD4 Naive','CD8 Effector','Proliferate T cell']
+sc.pl.pca(hcc, color=['leiden']+celltypes, color_map = 'RdBu_r', wspace = 0.3, ncols=4,save="HCC_fraction_PCA_ssgsea_LEFT_2.pdf")
+
+####   PC2 RIGHT
+celltypes=['PGA5+ Hepa']
+celltypes=['IGFBP3+ Hepa','CYP2E1+ Hepa','COX7A1+ Hepa']
+sc.pl.pca(hcc, color=['leiden']+celltypes, color_map = 'RdBu_r', wspace = 0.3, ncols=4,save="HCC_fraction_PCA_ssgsea_RIGHT_3.pdf")
+sc.pl.pca(hcc, color=['leiden']+celltypes, color_map = 'RdBu_r', wspace = 0.3, ncols=4),save="HCC_fraction_PCA_ssgsea_neighbor100.pdf")
+sc.pl.pca(hcc, color=['leiden']+celltypes, color_map = 'RdBu_r', wspace = 0.3, ncols=4,save="iCCA_fraction_PCA_ssgsea_neighbor10.pdf")
+sc.pl.pca(hcc, color=['leiden']+celltypes, color_map = 'RdBu_r', wspace = 0.3, ncols=4,save="HCC_fraction_PCA_gsva_neighbor100.pdf")
+sc.pl.pca(hcc, color=['leiden']+celltypes, color_map = 'RdBu_r', wspace = 0.3, ncols=4,save="HCC_fraction_PCA_gsva.pdf")
+sc.pl.pca(hcc, color=['leiden']+celltypes, color_map = 'RdBu_r', wspace = 0.3, ncols=4,save="HCC_fraction_PCA.pdf")
+sc.pl.pca(hcc, color=['leiden']+celltypes, color_map = 'RdBu_r', wspace = 0.3, ncols=4,save="iCCA_fraction_PCA.pdf")
+sc.pl.pca(hcc, color=['Chort'], color_map = 'RdBu_r', wspace = 0.3, ncols=4,save="hcc_cirrhosis_cohort_fraction_PCA.pdf")
+sc.pl.pca(hcc, color=['stage'], color_map = 'RdBu_r', wspace = 0.3, ncols=4),save="hcc_stage_fraction_PCA.pdf")
+clinical=pd.read_csv('/cluster/huanglab/lgu/newdata/new_survival/cli_all.csv')
+clinical=pd.read_csv('./total_HCC_clinical.csv')
+colNameDict = {'Unnamed: 0':'cohort_name'}  
+clinical.rename(columns = colNameDict,inplace=True)
+hcc.obs = hcc.obs.reset_index()
+colNameDict = {'Sample':'cohort_name'}  
+hcc.obs.rename(columns = colNameDict,inplace=True)
+table_cli = pd.concat([clinical.loc[:,['stage','cirrhosis','Chort']],hcc.obs],axis=1,join='inner')
+table_cli.to_csv('./cli_add_2.csv')
+set(table_cli['stage_x'])
+table_cli =pd.read_csv('./cli_add.csv')
+hcc.obs=table_cli
+set(table_cli.loc[:,'leiden'])
+cohort=['GSE14520','GSE20140','GSE76427','LIRI','TCGA']
+cohort=['GSE116174', 'GSE14520', 'GSE76427', 'TCGA']
+flatui = ["#028EE3", "#A6DC00", "#987875", "#e74c3c", "#933896"]
+sns.set_palette(flatui)
+sns.palplot(sns.color_palette())
+kk=sns.color_palette()
+sc.pl.pca(hcc, color=['Chort'],palette=kk, wspace = 0.3, ncols=1,title='Cohort',save="hcc_cirrhosis_cohort_fraction_PCA.pdf")
