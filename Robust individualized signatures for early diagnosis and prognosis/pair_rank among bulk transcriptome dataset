@@ -1,0 +1,74 @@
+library(switchBox)
+help(KTSP.Classify)
+library(utils)
+library("singleCellNet")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/grnstatus.R")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/plots.R")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/scn_assess.R")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/scn_train.R")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/stats.R")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/tsp_rf.R")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/utils.R")
+library(tidyverse)
+library(funModeling)
+library(xgboost)
+library(caret)
+library('Ckmeans.1d.dp')
+library(funModeling)
+library(timeROC)
+library(survival)
+library(survminer)
+
+### merge_exp as the multiple expression matrix of bulk dataset
+### merge_cli as the multiple clinical metadata of bulk dataset
+
+merge_exp <- read.csv('',row.names = 1)
+merge_cli <- read.csv('',row.names = 1)
+gene <- read.csv('')
+length(unique(intersect(rownames(merge_exp),gene)))
+length(intersect(colnames(merge_exp),merge_cli$sample))
+matTraining <- merge_exp[unique(intersect(rownames(merge_exp),gene)),intersect(colnames(merge_exp),merge_cli$sample)]
+merge_cli_sub <- merge_cli[which(colnames(matTraining) %in% merge_cli$sample==TRUE),]
+head(merge_cli_sub)[1:5,]
+head(matTraining)[,1:5]
+trainingGroupNum <- as.numeric(merge_cli_sub$label)
+classifier <- KTSP.Train(matTraining, trainingGroupNum, n=n)
+genepair_exp <- ifelse(matTraining[classifier$geneNames[,1],]-matTraining[classifier$geneNames[,2],]>0,1,-1)
+rownames(genepair_exp <- paste(classifier$geneNames[,1],classifier$geneNames[,2],sep=' - ')
+data=t(genepair_exp)
+library(ComplexHeatmap)
+library(circlize)
+library(RColorBrewer)
+
+table(merge_cli_sub$type)
+merge_cli_sub <- merge_cli_sub[order(merge_cli_sub$type),]
+###  for example
+#index_sample_1 <- grep('CoHCC',merge_cli_sub$type)
+#index_sample_2 <- grep('Adjacent',merge_cli_sub$type)
+#index_sample_3 <- grep('CHCC',merge_cli_sub$type)
+AA <- genepair_exp[,which(colnames(genepair_exp) %in% merge_cli_sub$sample[index_sample_1] ==TRUE)]
+BB <- genepair_exp[,which(colnames(genepair_exp) %in% merge_cli_sub$sample[index_sample_2] ==TRUE)]
+CC <- genepair_exp[,which(colnames(genepair_exp) %in% merge_cli_sub$sample[index_sample_3] ==TRUE)]
+
+index_sample <- c(merge_cli_sub$sample[index_sample_1],merge_cli_sub$sample[index_sample_2],merge_cli_sub$sample[index_sample_3])
+DD <- genepair_exp[,-which(colnames(genepair_exp) %in% index_sample==TRUE)]
+matrix_heatmap <- cbind(AA,BB,CC,DD)
+list_sample <- as.data.frame(as.matrix(colnames(matrix_heatmap)))
+colnames(list_sample) <- 'sample'
+list_sample <- left_join(list_sample,merge_cli_sub,by='sample')
+table(list_sample$type.x)
+# Create the heatmap annotation
+matrix_heatmap <- as.data.frame(matrix_heatmap) %>% 
+  select_if(~!any(is.na(.)))
+list_sample$type.x[which(list_sample$sample %in% colnames(matrix_heatmap) ==TRUE)]
+length(colnames(matrix_heatmap))
+ha <- HeatmapAnnotation(
+  dataset = list_sample$type[which(list_sample$sample %in% colnames(matrix_heatmap) ==TRUE)],
+  col=list(dataset=c('Adjacent'='#415888','CHCC'='#CCD6BD','CoHCC'='#D26A51','HCC'='#B85BA0')),rank =anno_barplot(apply(matrix_heatmap,2,sum)))
+row_ha  <-  rowAnnotation(count = anno_barplot(apply(matrix_heatmap,1,sum)))
+library(dplyr)
+#pdf('genepair_expression.pdf',width = 20,height = 9)
+options(repr.plot.width=20, repr.plot.height=9)
+Heatmap(as.matrix(matrix_heatmap),col = colorRamp2(c(-1, 0, 1), brewer.pal(n=3, name="RdBu")),column_km = 2,row_km = 2,border = T,border_gp = gpar(col = 'white', lwd = 5),
+        ,cluster_columns=F,cluster_rows =T,show_column_names =F,top_annotation = ha,use_raster=TRUE, right_annotation = row_ha,row_names_gp = grid::gpar(fontsize = 15))
+#dev.off()
