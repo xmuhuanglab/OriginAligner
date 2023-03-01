@@ -1,1 +1,84 @@
+library(switchBox)
+help(KTSP.Classify)
+library(utils)
+library("singleCellNet")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/grnstatus.R")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/plots.R")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/scn_assess.R")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/scn_train.R")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/stats.R")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/tsp_rf.R")
+source("/cluster/huanglab/sluo/sluoo/DATA_trajectory_embryo_fetal/genepair/Rscript/utils.R")
+library(tidyverse)
+library(funModeling)
+library(xgboost)
+library(caret)
+library('Ckmeans.1d.dp')
+library(funModeling)
+library(timeROC)
+library(survival)
+library(survminer)
 
+
+###########################
+##### select the best pair
+###########################
+
+# 'exp' as the bulk transcriptome expression matrix
+# 'status' as the survival status of bulk transcriptome clinical metadata
+matTraining <- exp
+trainingGroupNum <- clinical$status
+classifier <- KTSP.Train(matTraining, trainingGroupNum, n=n)
+
+pp=list()
+for(i in 2:n){
+    matTraining <- exp[unique(intersect(rownames(exp),gene)),]
+    trainingGroupNum <- clinical$label
+    classifier <- KTSP.Train(matTraining, trainingGroupNum, n=i)
+    genepair_exp <- ifelse(matTraining[classifier$geneNames[,1],]-matTraining[classifier$geneNames[,2],]>0,1,0)
+    rownames(genepair_exp) <- paste(classifier$geneNames[,1],classifier$geneNames[,2],sep=' - ')
+    data=t(genepair_exp)
+    index <- which( (1:nrow(data))%% 4== 0 )  #####  you can choice another way to deal with the group
+    train <- as.data.frame(data[-index,])
+    test <- as.data.frame(data[index,])
+    train_matrix <-as(as.matrix(train), "dgCMatrix")
+    test_matrix <-as(as.matrix(test), "dgCMatrix")
+    train_label <- clinical[-index,]$label
+    test_label <- clinical[index,]$label
+    train_fin <- list(data=train_matrix,label=train_label) 
+    test_fin <- list(data=test_matrix,label=test_label) 
+    dtrain <- xgb.DMatrix(data = train_fin$data, label = train_fin$label) 
+    dtest <- xgb.DMatrix(data = test_fin$data, label = test_fin$label)
+    xgb <- xgboost(data = dtrain,max_depth=6, eta=0.5,objective='binary:logistic', nround=25)
+    importance <- xgb.importance(train_matrix@Dimnames[[2]], model = xgb) 
+    acc <- as.data.frame(c(train_label,test_label))
+    acc[,2] <- round(c(predict(xgb,newdata = dtrain),predict(xgb,newdata = dtest)),0)
+    acc$accuracy <- ''
+    colnames(acc) <- c('Origin_label','Predict_label','Accuracy')
+    for (j in 1:nrow(acc)){
+        if (acc[j,1]==acc[j,2]) {acc[j,3]='T'}
+        else {acc[j,3]='F'}
+        }
+    pp[[i]] <- acc
+       
+}
+
+acc_result_df <- data.frame(Pair_number=seq(2,46,1),Accuracy=0)
+for(i in 2:46){
+    input <- pp[[i]]
+    tt <- as.data.frame(table(input$Accuracy))
+    accuracy <- tt[2,2]/sum(tt[1,2],tt[2,2])
+    acc_result_df[i-1,2 <- accuracy
+    }
+library(ggplot2)
+options(repr.plot.width=6, repr.plot.height=6)
+p <- ggplot(acc_result_df,aes(Pair_number,Accuracy))+
+  geom_point(size=4)+
+  geom_line(position = position_dodge(1),cex=2)+ theme_bw() +
+  theme(axis.title.x=element_text(size = 25),
+        axis.ticks.x=element_blank(),axis.text=element_text(size=20),
+        axis.title.y=element_text(size = 25),
+        axis.text.x = element_text(size = 20),
+        axis.text.y = element_text(size = 20))
+p + scale_x_continuous(name = 'Number of gene pairs',limits = c(0, 50), breaks = seq(0, 50, 10))+scale_y_continuous(limits = c(0.69, 0.95), breaks = seq(0.65, 1, 0.05))
+        
