@@ -1,0 +1,68 @@
+library(Seurat)
+#packageVersion("Seurat")
+library(dplyr)
+library(reshape2)
+library(patchwork)
+library(stringr)
+library(openxlsx)
+library(ggplot2)
+library(tidyverse)
+library(data.table)
+library(Hmisc)
+library(tidyr)
+library(class)
+library(gbm)
+library(gridExtra)
+
+
+#####  load RData
+load("seurat_processed.RData")  ## merge2
+pair=read.csv('genepair_28_ktsp.csv') ## K-TSP select the optimal gene pair combinations
+
+#####  select target single-cell subset
+kk=merge2@meta.data[which(merge2$data_type=="Cirrhosis"|merge2$data_type=="HCC"|merge2$data_type=="Healthy"),]
+cell=rownames(kk)[which(kk$celltype=="Hepatocyte")]
+
+hepa=subset(merge2,cells=cell)
+table(hepa$type_originII)
+head(hepa@meta.data)
+
+n=150  ### cell number
+j=1    ### test
+for(j in 1:nrow(pair)){
+    plotlist = list()
+    for(i in 1:length(names(table(hepa$type_originII)))){
+        input=as.matrix(hepa@assays$RNA@data[c(pair[j,1],pair[j,2]),sample(rownames(hepa@meta.data)[which(hepa$type_originII==names(table(hepa$type_originII))[i])],n,replace=TRUE)])
+        input=as.data.frame(t(input))
+        input$barcode=rownames(input)
+
+        Barcode <- rep(paste('Cell',1:n), times = 2)
+        GenePair <- rep(c('Pair gene1','Pair gene2'),each = n)
+        Expression <- c(input[,1],input[,2])
+        df <- data.frame(Barcode = Barcode, GenePair = GenePair, Expression = Expression)
+
+
+        options(repr.plot.width=25, repr.plot.height=3)
+        modname = names(table(hepa$type_originII))[i]
+        p=ggplot(data = df, mapping = aes(x = Barcode, y = Expression ,group=GenePair, linetype = GenePair
+                                           , colour = GenePair
+                                           , shape = GenePair
+                                           , fill = GenePair))+ theme_classic() + theme(axis.ticks = element_blank()
+                                         , axis.text.x = element_blank() , plot.title = element_text(size = 20, face = "bold")
+                                        ,axis.title.x=element_text(vjust=1,size=20),legend.text  = element_text(size = 16),legend.title = element_text(size = 18)
+                                        ,axis.title.y=element_text(size=20))+ scale_color_manual(values = c('#67A9CF','#EF8A62')) + geom_line() + geom_point() + ggtitle(modname)
+        plotlist[[i]]=p
+    }
+#EF8A62   #67A9CF   c('darkred','steelblue')
+    # options(repr.plot.width=25, repr.plot.height=3*length(names(table(hepa$type_originII))))
+    # main <- grid.arrange(grobs=plotlist,ncol=1)
+    # ggsave(paste(paste(pair[j,1],pair[j,2],sep='-'),"_.pdf",sep=''),main ,width =25 ,height =3*length(names(table(hepa$type_originII))) )
+    options(repr.plot.width=25, repr.plot.height=6)
+    plot_list=list()
+    plot_list[1]=plotlist[3]
+    plot_list[2]=plotlist[8]
+    plot_list[3]=plotlist[11]
+
+    main <- grid.arrange(grobs=plot_list,ncol=1)
+    ggsave(paste(paste(pair[j,1],pair[j,2],sep='-'),"_.pdf",sep=''),main ,width =25 ,height =6 )
+}
