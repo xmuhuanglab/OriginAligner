@@ -1,4 +1,4 @@
-# SIM-scRNA
+# SIMarker
 ![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/new_pipeline.png)
 ## OriginAligner: a method to phenotypic comparison of different sample sources
 ### Introduction:
@@ -6,9 +6,6 @@ Here we designed a modified statistical method OriginAligner based on the hypoth
 have similar microenvironments or niches.
 ### Workflow:
 ![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/the%20pipeline%20of%20OriginAligner.png)
-
-### How to cite OrignAligner
-Integrated analysis of single-cell transcriptome of liver cancer and cirrhosis reveals cell lineage similarity and prognostic-associated subpopulations. bioRxiv, 2022.2011.2003.515124. doi:10.1101/2022.11.03.515124 (Preprint)
 
 ### Step
 #### Step 1 ： calculate the hvg based on dispersion and weight（function--Screen_hvg）
