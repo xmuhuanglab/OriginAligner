@@ -31,7 +31,7 @@ docker pull sluo112211/sim-docker
 
 ## Example for code
 ```
-source('identify the cirrhosis-like subpopulations/OriginAligner_main')
+source('SIMarker/Part1: Discovering potential Cirrhosis-like subpopulations/OriginAligner_main')
 Screen_hvg(seurat_obj,subtype,gene_number)
 Plot_hvg(disp_threshold,weight_threshold)
 ```
