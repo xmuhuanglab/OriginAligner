@@ -38,5 +38,7 @@ Plot_hvg(disp_threshold,weight_threshold)
 ```
 OriginAligner(seurat_obj,subtype,sample_1,sample_2,sample_3,type_origin,bg.col,type_origin_1,type_origin_2,best_k)
 ```
+![Image text](https://github.com/xmuhuanglab/SIMarker/blob/main/images/result example.PNG)
+
 
 
