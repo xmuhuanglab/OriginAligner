@@ -1,9 +1,7 @@
 # SIMarker
 ![Image text](https://github.com/xmuhuanglab/SIM-scRNA/blob/main/images/new_pipeline.png)
 ## Introduction:
-Here we designed a modified statistical pipeline SIMarker based on the hypothesis that similar characteristics in different samples might 
-have some clinical applications.
-
+We provide a systematic and quantitative analysis workflow, named SIMarker, to quantify similarities between HCC and cirrhosis at single-cell resolution. Moreover, robust individualized signatures for early diagnosis and prognosis of HCC based on within-sample REOs were developed. Our work opens avenues for the exploration of similarity in other types of cancers and diseases based on single cell transcriptomes.
 ## Pull the docker (the env about R version)
 ```
 docker pull sluo112211/sim-docker
